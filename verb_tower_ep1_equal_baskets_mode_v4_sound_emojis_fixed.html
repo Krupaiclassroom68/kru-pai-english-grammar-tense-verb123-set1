@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verb Tower EP1 — Equal Baskets Mode • Kru Pai Classroom</title>
+<style>
+  :root{
+    --blue:#1e88e5; --blue-soft:#bbdefb; --blue-light:#e3f2fd;
+    --yellow:#ffd54f; --yellow-soft:#fff8e1;
+    --ink:#1f2937; --muted:#64748b; --card:#fff; --shadow:0 10px 24px rgba(0,0,0,.08);
+    --radius:22px;
+    --good:#22c55e; --bad:#ef4444;
+  }
+  *{box-sizing:border-box} html,body{height:100%}
+  body{
+    margin:0; font-family: "Noto Sans Thai", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    color:var(--ink);
+    background: radial-gradient(1200px 600px at 20% -10%, var(--yellow-soft), transparent 60%),
+                radial-gradient(900px 600px at 120% 10%, var(--blue-light), transparent 55%),
+                linear-gradient(180deg, #ffffff, #f7fbff 60%);
+  }
+  .container{max-width:1120px;margin:0 auto;padding:20px}
+  .brand{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+  .logo{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;
+        background: conic-gradient(from 0deg, var(--yellow), var(--blue-soft), var(--yellow));
+        font-weight:900;color:#0f172a;box-shadow:var(--shadow)}
+  h1{margin:0;font-size:clamp(24px,3.6vw,36px)}
+  .subtitle{margin:4px 0 0;color:var(--muted)}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px}
+  .screen{display:none} .screen.active{display:block}
+  .row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .input{flex:1 1 260px;padding:14px 16px;border-radius:16px;border:2px solid #e4eaf5;font-size:18px;outline:none}
+  .btn{appearance:none;border:none;border-radius:16px;padding:12px 18px;font-size:18px;font-weight:800;cursor:pointer;transition:.2s transform,.2s box-shadow;box-shadow:0 8px 16px rgba(0,0,0,.08);}
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:linear-gradient(135deg, var(--yellow), var(--blue-soft));color:#111827}
+  .btn-ghost{background:#fff;border:2px solid #e4eaf5}
+  .btn-secondary{background:#e3f2fd;color:#0f172a;border:2px solid #cfe6ff}
+  .hud{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;align-items:center;margin:12px 0 18px}
+  .pill{background:#fff;border:2px solid #e4eaf5;border-radius:999px;padding:8px 12px;font-weight:800;display:flex;align-items:center;gap:8px}
+  .pill.score{background:linear-gradient(90deg, var(--yellow), #c8e7ff)}
+  .pill.goal{background:#ecfdf5;border-color:#d1fae5}
+  .bubble-area{position:relative;height:min(38vh,320px);display:grid;place-items:center}
+  .word{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);padding:16px 24px;border-radius:999px;
+        background:#fff;border:3px solid #e4eaf5;font-size:clamp(28px,6vw,50px);font-weight:900;box-shadow:var(--shadow);text-transform: lowercase;}
+  .pop{animation:pop .3s ease} @keyframes pop{from{transform:translate(-50%,-50%) scale(.7)} to{transform:translate(-50%,-50%) scale(1)}}
+  .explode{animation:explode .45s ease forwards} @keyframes explode{to{transform:translate(-50%,-50%) scale(1.35);opacity:0;filter:blur(2px)}}
+  .bins{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .bin{background:#fff;border:3px dashed #e5e7eb;border-radius:20px;padding:12px;min-height:160px;position:relative;overflow:hidden}
+  .bin h3{margin:0 0 8px;font-size:clamp(16px,3vw,20px)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;min-height:44px}
+  .chip{padding:6px 10px;background:#f3f4f6;border-radius:999px;font-weight:800;font-size:14px;border:1px solid #e5e7eb;text-transform: lowercase;}
+  .bin.v1{background:linear-gradient(180deg,#e3f2fd,#fff)}
+  .bin.v2{background:linear-gradient(180deg,#fffde7,#fff)}
+  .bin.v3{background:linear-gradient(180deg,#e8f5e9,#fff)}
+  .bin.bounce{animation:bounce .5s ease} @keyframes bounce{0%{transform:translateY(0)}40%{transform:translateY(-6px)}100%{transform:translateY(0)}}
+  .rainbow{position:absolute;inset:-2px;border-radius:inherit;pointer-events:none;opacity:0}
+  .bin.good .rainbow{opacity:1;animation:shine 1s ease}
+  @keyframes shine{from{background:conic-gradient(from 0deg, transparent 0 70%, rgba(255,255,255,.6) 85%, transparent 100%)} to{background:conic-gradient(from 360deg, transparent 0 70%, rgba(255,255,255,.6) 85%, transparent 100%)}}
+  .actions{display:flex;gap:10px;justify-content:center;margin-top:12px}
+  .big{font-size:clamp(36px,8vw,72px);font-weight:900}
+  table{width:100%;border-collapse:collapse;margin-top:10px}
+  th,td{border:1px solid #e4eaf5;padding:10px;text-align:center;font-weight:800}
+  th{background:#f3f7ff}
+  .hint{font-weight:700;color:#0f172a;background:#fff;border:2px solid #e4eaf5;border-radius:16px;padding:10px 12px;margin:10px 0}
+  .shake{animation:shake .4s ease} @keyframes shake{20%{transform:translate(-50%,-50%) rotate(-7deg)} 40%{transform:translate(-50%,-50%) rotate(7deg)} 60%{transform:translate(-50%,-50%) rotate(-4deg)} 80%{transform:translate(-50%,-50%) rotate(4deg)} 100%{transform:translate(-50%,-50%) rotate(0)}}
+  /* Reward boxes */
+  .boxes{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
+  .box{border:3px solid #e4eaf5;border-radius:20px;padding:18px;background:#fff;cursor:pointer;text-align:center;box-shadow:var(--shadow);transition:.2s transform}
+  .box:hover{transform:translateY(-2px)}
+  .box.opened{background:linear-gradient(180deg,#fffef0,#fff)}
+  .emoji{font-size:44px;display:block}
+  .reveal{font-weight:900;color:#111827;margin-top:8px}
+/* Mode toggle + feedback */
+.mode-wrap{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0 0}
+.mode-btn{border-radius:999px;padding:10px 14px;font-weight:900;border:2px solid #e4eaf5;background:#fff;cursor:pointer}
+.mode-btn.active{background:linear-gradient(135deg,var(--yellow),var(--blue-soft));border-color:#cfe6ff}
+.mode-note{color:var(--muted);font-weight:700}
+.feedback{position:absolute;top:50%;left:50%;transform:translate(-50%,-110%);font-size:clamp(40px,8vw,80px);
+          font-weight:900;opacity:0;pointer-events:none;filter:drop-shadow(0 10px 18px rgba(0,0,0,.12))}
+.feedback.show{animation:fb .55s ease forwards}
+@keyframes fb{0%{opacity:0;transform:translate(-50%,-120%) scale(.8)} 35%{opacity:1;transform:translate(-50%,-135%) scale(1)}
+              100%{opacity:0;transform:translate(-50%,-160%) scale(1.05)}}
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="brand">
+      <div class="logo">KPC</div>
+      <div>
+        <h1>Verb Tower EP1 <small style="font-weight:800;color:var(--blue)">&nbsp;• Equal Baskets Mode</small></h1>
+        <p class="subtitle">กติกา: เติมให้ครบคอกละ <b>10</b> คำ (V1,V2,V3 อย่างละ 10) — เลือกโหมด <b>ฝึก</b> หรือ <b>ท้าทาย</b> ได้เลย!</p>
+      </div>
+    </div>
+
+    <!-- REVIEW + START -->
+    <section id="review" class="screen card active">
+      <h2 style="margin-top:0">หน้าทบทวน + ลงชื่อเล่นเกม 🎒</h2>
+      <div class="hint">เป้าหมาย: สะสมให้ครบ <b>V1 = 10</b> , <b>V2 = 10</b> , <b>V3 = 10</b> (รวม 30 คำ)</div>
+<div class="mode-wrap" role="group" aria-label="เลือกโหมดการเล่น">
+  <button id="btnModePractice" class="mode-btn active" type="button">🟦 โหมดฝึก (ผิดไม่รีเซ็ต)</button>
+  <button id="btnModeChallenge" class="mode-btn" type="button">🔥 โหมดท้าทาย (ผิดรีเซ็ตคอก)</button>
+  <span id="modeNote" class="mode-note">ตอนนี้: โหมดฝึก — กดผิดขึ้น ❌ แล้วไปคำถัดไป</span>
+</div>
+      <table aria-label="ตาราง 30 กริยาแบบเปลี่ยนทั้ง 3 ช่อง">
+        <thead><tr><th>V1</th><th>V2</th><th>V3</th></tr></thead>
+        <tbody id="verbTable"></tbody>
+      </table>
+      <div class="row" style="margin-top:14px">
+        <input id="playerName" class="input" maxlength="18" placeholder="พิมพ์ชื่อเล่นของหนู">
+        <button id="btnStart" class="btn btn-primary">เริ่มเกม 🎮</button>
+      </div>
+      <p class="subtitle">* แนะนำ: ดู pattern จำเร็ว เช่น <b>ow → ew → own</b>, <b>i → a → u</b>, <b>eat → ate → eaten</b></p>
+    </section>
+
+    <!-- GAME -->
+    <section id="game" class="screen card">
+      <div class="hud">
+        <div class="pill">👤 ผู้เล่น: <span id="hudName">—</span></div>
+        <div class="pill score">⭐ คะแนน: <span id="hudScore">0</span></div>
+        <div class="pill">❌ ผิด: <span id="hudMistakes">0</span></div>
+        <div class="pill">⏳ เวลา: <span id="hudTimer">10.0</span>s</div>
+        <div class="pill goal">🎯 เป้าหมาย: V1 <span id="goalV1">0</span>/10 • V2 <span id="goalV2">0</span>/10 • V3 <span id="goalV3">0</span>/10</div>
+      </div>
+      <div class="bubble-area">
+        <div id="feedback" class="feedback">❌</div>
+        <div id="word" class="word">go</div>
+      </div>
+      <div class="bins">
+        <div class="bin v1" data-form="v1"><h3>คอก V1 (Base)</h3><div class="chips" id="chipsV1"></div><div class="rainbow"></div></div>
+        <div class="bin v2" data-form="v2"><h3>คอก V2 (Past)</h3><div class="chips" id="chipsV2"></div><div class="rainbow"></div></div>
+        <div class="bin v3" data-form="v3"><h3>คอก V3 (Past Participle)</h3><div class="chips" id="chipsV3"></div><div class="rainbow"></div></div>
+      </div>
+      <div class="actions">
+        <button id="btnSkip" class="btn btn-ghost">ข้ามคำนี้</button>
+        <button id="btnRestart" class="btn btn-secondary">เริ่มใหม่</button>
+        <button id="btnHome" class="btn btn-ghost">กลับหน้าแรก</button>
+      </div>
+    </section>
+
+    <!-- REWARD -->
+    <section id="reward" class="screen card" style="text-align:center">
+      <h2>🎁 กล่องสุ่มรางวัลสุดน่ารัก</h2>
+      <p class="subtitle">สะสมครบทั้งสามคอกแล้ว! เลือกกล่องหนึ่งใบเพื่อเปิดข้อความพลังใจ 💛</p>
+      <div class="boxes">
+        <div class="box" data-idx="0"><span class="emoji">🎁</span><div class="reveal">คลิกเพื่อเปิด</div></div>
+        <div class="box" data-idx="1"><span class="emoji">🎁</span><div class="reveal">คลิกเพื่อเปิด</div></div>
+        <div class="box" data-idx="2"><span class="emoji">🎁</span><div class="reveal">คลิกเพื่อเปิด</div></div>
+      </div>
+      <div class="actions" style="margin-top:16px">
+        <button id="btnToSummary" class="btn btn-primary">ไปหน้าสรุป</button>
+      </div>
+    </section>
+
+    <!-- SUMMARY -->
+    <section id="summary" class="screen card" style="text-align:center">
+      <h2>สรุปผลการเล่น 🎉</h2>
+      <div class="big"><span id="finalScore">0</span> / <span id="finalTotal">30</span></div>
+      <p id="finalMsg" class="subtitle">—</p>
+      <p class="subtitle" style="margin-top:6px">สถิติ: ตอบผิด <b><span id="finalMistakes">0</span></b> คำ</p>
+      <div class="actions">
+        <button id="btnAgain" class="btn btn-primary">เล่นอีกครั้ง</button>
+        <button id="btnGoHome" class="btn btn-ghost">กลับหน้าแรก</button>
+      </div>
+    </section>
+  </div>
+
+<script>
+const VERBS = [
+  ['go','went','gone'],
+  ['see','saw','seen'],
+  ['eat','ate','eaten'],
+  ['write','wrote','written'],
+  ['speak','spoke','spoken'],
+  ['take','took','taken'],
+  ['give','gave','given'],
+  ['drive','drove','driven'],
+  ['break','broke','broken'],
+  ['choose','chose','chosen'],
+  ['begin','began','begun'],
+  ['drink','drank','drunk'],
+  ['sing','sang','sung'],
+  ['swim','swam','swum'],
+  ['ring','rang','rung'],
+  ['grow','grew','grown'],
+  ['fly','flew','flown'],
+  ['throw','threw','thrown'],
+  ['know','knew','known'],
+  ['blow','blew','blown'],
+  ['fall','fell','fallen'],
+  ['forget','forgot','forgotten'],
+  ['forgive','forgave','forgiven'],
+  ['hide','hid','hidden'],
+  ['shake','shook','shaken'],
+  ['steal','stole','stolen'],
+  ['wake','woke','woken'],
+  ['freeze','froze','frozen'],
+  ['tear','tore','torn'],
+  ['wear','wore','worn'],
+];
+const TIME_PER = 10.0;
+const TARGET_PER_BIN = 10;
+const TOTAL_TARGET = TARGET_PER_BIN*3;
+
+
+// --- Sound (simple WebAudio) ---
+const SND = {
+  ctx:null,
+  _init(){
+    if(!this.ctx){
+      this.ctx = new (window.AudioContext||window.webkitAudioContext)();
+    }
+  },
+  beep(freq=880,dur=0.06,type='sine',vol=0.14){
+    try{
+      this._init();
+      const o=this.ctx.createOscillator(), g=this.ctx.createGain();
+      o.type=type; o.frequency.value=freq;
+      o.connect(g); g.connect(this.ctx.destination);
+      const t=this.ctx.currentTime;
+      g.gain.setValueAtTime(0.0001,t);
+      g.gain.exponentialRampToValueAtTime(vol,t+0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+      o.start(); o.stop(t+dur+0.02);
+    }catch(e){}
+  },
+  click(){ this.beep(760,0.04,'triangle',0.10); },
+  correct(){ this.beep(1150,0.07,'triangle',0.18); setTimeout(()=>this.beep(1480,0.06,'triangle',0.14),80); },
+  wrong(){ this.beep(220,0.12,'sawtooth',0.16); },
+  timeout(){ this.beep(420,0.10,'square',0.12); }
+};
+
+let S = { name:'นักเรียน', mode:'practice', score:0, mistakes:0, timeLeft:TIME_PER, current:null, binCount:{v1:0,v2:0,v3:0}, timerId:null };
+const $ = s=>document.querySelector(s);
+const review=$('#review'), game=$('#game'), reward=$('#reward'), summary=$('#summary');
+const hudName=$('#hudName'), hudScore=$('#hudScore'), hudMistakes=$('#hudMistakes'), hudTimer=$('#hudTimer');
+const feedbackEl=$('#feedback');
+const goalV1=$('#goalV1'), goalV2=$('#goalV2'), goalV3=$('#goalV3');
+const wordEl=$('#word'); const bins=[...document.querySelectorAll('.bin')];
+
+(function buildTable(){ const tb=document.getElementById('verbTable'); VERBS.forEach(v=>{ const tr=document.createElement('tr'); v.forEach(x=>{ const td=document.createElement('td'); td.textContent=x; tr.appendChild(td);}); tb.appendChild(tr);}); })();
+const show = id => { [review,game,reward,summary].forEach(x=>x.classList.remove('active')); document.getElementById(id).classList.add('active'); };
+function clearBins(){ document.querySelectorAll('.chips').forEach(c=>c.innerHTML=''); }
+function resetWord(){ wordEl.textContent = 'go'; wordEl.classList.remove('explode','pop','shake'); }
+function updateGoals(){ goalV1.textContent=S.binCount.v1; goalV2.textContent=S.binCount.v2; goalV3.textContent=S.binCount.v3; }
+function formsAvailable(){ const a=[]; if(S.binCount.v1<TARGET_PER_BIN)a.push('v1'); if(S.binCount.v2<TARGET_PER_BIN)a.push('v2'); if(S.binCount.v3<TARGET_PER_BIN)a.push('v3'); return a; }
+function randomVerb(){ return VERBS[Math.floor(Math.random()*VERBS.length)]; }
+function pickNext(){ const avail=formsAvailable(); if(avail.length===0) return null; const form=avail[Math.floor(Math.random()*avail.length)]; const [a,b,c]=randomVerb(); const value=form==='v1'?a: form==='v2'?b:c; return {form,value}; }
+
+function tick(){ S.timeLeft=Math.max(0,S.timeLeft-1/60); hudTimer.textContent=S.timeLeft.toFixed(1); if(S.timeLeft<=0){ flashFeedback('😠'); SND.timeout(); mistake(); return;} S.timerId=requestAnimationFrame(tick); }
+function nextWord(){
+  if(S.timerId) cancelAnimationFrame(S.timerId);
+  const n=pickNext(); if(!n){ finishReward(); return; }
+  S.current=n; S.timeLeft=TIME_PER;
+  wordEl.textContent=S.current.value; wordEl.classList.remove('explode','shake'); wordEl.classList.add('pop'); setTimeout(()=>wordEl.classList.remove('pop'),320);
+  S.timerId=requestAnimationFrame(tick);
+}
+function finishReward(){ if(S.timerId) cancelAnimationFrame(S.timerId); show('reward'); }
+function endGameSummary(){
+  const total=S.binCount.v1+S.binCount.v2+S.binCount.v3;
+  document.getElementById('finalScore').textContent=total;
+  document.getElementById('finalTotal').textContent=TOTAL_TARGET;
+  const msg = total===TOTAL_TARGET? 'สุดยอด! ครบทั้งสามคอก 🌈' : total>=20? 'เก่งมาก! เกือบครบแล้ว ลองใหม่อีกครั้งนะ 💪' : 'ไม่เป็นไร เริ่มใหม่ได้เสมอ ครูปายเชื่อในหนู ✨';
+  document.getElementById('finalMsg').textContent=msg;
+  document.getElementById('finalMistakes').textContent = S.mistakes;
+  show('summary');
+}
+function animateMoveToBin(bin){
+  const rectW=wordEl.getBoundingClientRect();
+  const chips=bin.querySelector('.chips');
+  const chip=document.createElement('span'); chip.className='chip'; chip.textContent=S.current.value; chips.appendChild(chip);
+  const ghost=document.createElement('div'); ghost.className='word'; ghost.style.position='fixed'; ghost.style.left=rectW.left+'px'; ghost.style.top=rectW.top+'px'; ghost.style.transform='translate(0,0)'; ghost.textContent=S.current.value; document.body.appendChild(ghost);
+  const rectC=chip.getBoundingClientRect(); const dx=rectC.left+rectC.width/2-(rectW.left+rectW.width/2); const dy=rectC.top+rectC.height/2-(rectW.top+rectW.height/2);
+  ghost.animate([{transform:'translate(0,0) scale(1)',opacity:1},{transform:`translate(${dx}px,${dy}px) scale(.6)`,opacity:.15}],{duration:520,easing:'cubic-bezier(.2,.8,.2,1)'}).onfinish=()=>ghost.remove();
+  bin.classList.add('bounce','good'); setTimeout(()=>{bin.classList.remove('bounce'); setTimeout(()=>bin.classList.remove('good'),700)},500);
+}
+function choose(form){
+  if(!S.current) return;
+  SND.click();
+
+  const ok=S.current.form===form;
+  if(ok){
+    S.score++; hudScore.textContent=S.score;
+
+    // 🙂 ถูกต้อง
+    flashFeedback('🙂');
+    SND.correct();
+
+    const bin=document.querySelector(`.bin[data-form="${form}"]`);
+    animateMoveToBin(bin);
+    S.binCount[form]++; updateGoals();
+    setTimeout(nextWord,540);
+  }else{
+    // 😠 ผิด (ไม่ดุ แต่เด้งชัด)
+    flashFeedback('😠');
+    SND.wrong();
+    mistake();
+  }
+}
+
+function flashFeedback(emoji){
+  if(!feedbackEl) return;
+  feedbackEl.classList.remove('show');
+  // force reflow
+  void feedbackEl.offsetWidth;
+  feedbackEl.textContent = emoji;
+  feedbackEl.classList.add('show');
+}
+function flashWrong(){ flashFeedback('😠'); }
+
+function mistake(){
+  if(S.timerId) cancelAnimationFrame(S.timerId);
+  S.mistakes++; if(hudMistakes) hudMistakes.textContent = S.mistakes;
+  flashWrong();
+
+  // โหมดท้าทาย = รีเซ็ตคอกเมื่อผิด / หมดเวลา
+  if(S.mode==='challenge'){
+    wordEl.classList.add('shake'); setTimeout(()=>{ wordEl.classList.remove('shake'); },300);
+    clearBins();
+    S.binCount={v1:0,v2:0,v3:0};
+    updateGoals();
+  }else{
+    // โหมดฝึก = ไม่รีเซ็ต แค่สั่นนิดเดียว
+    wordEl.classList.add('shake'); setTimeout(()=>{ wordEl.classList.remove('shake'); },250);
+  }
+  setTimeout(nextWord,320);
+}
+
+// Events
+document.getElementById('btnStart').addEventListener('click', ()=>{ SND.click(); S.name=(document.getElementById('playerName').value||'นักเรียน').trim(); startGame(); });
+document.getElementById('btnModePractice').addEventListener('click', ()=>{ SND.click();
+  S.mode='practice';
+  document.getElementById('btnModePractice').classList.add('active');
+  document.getElementById('btnModeChallenge').classList.remove('active');
+  document.getElementById('modeNote').textContent='ตอนนี้: โหมดฝึก — กดผิดขึ้น ❌ แล้วไปคำถัดไป';
+});
+document.getElementById('btnModeChallenge').addEventListener('click', ()=>{ SND.click();
+  S.mode='challenge';
+  document.getElementById('btnModeChallenge').classList.add('active');
+  document.getElementById('btnModePractice').classList.remove('active');
+  document.getElementById('modeNote').textContent='ตอนนี้: โหมดท้าทาย — กดผิดขึ้น ❌ และคอกจะรีเซ็ต';
+});
+document.getElementById('btnAgain').addEventListener('click', ()=> startGame());
+document.getElementById('btnGoHome').addEventListener('click', ()=>{ SND.click(); show('review'); });
+document.getElementById('btnHome').addEventListener('click', ()=>{ SND.click(); show('review'); });
+document.getElementById('btnRestart').addEventListener('click', ()=> startGame());
+document.getElementById('btnSkip').addEventListener('click', ()=> nextWord());
+bins.forEach(b=> b.addEventListener('click', ()=> choose(b.getAttribute('data-form')) ));
+document.addEventListener('keydown', e=>{ const map={'1':'v1','2':'v2','3':'v3'}; if(map[e.key]) choose(map[e.key]); if(e.key===' '){ e.preventDefault(); nextWord(); } });
+
+function startGame(){
+  S.score=0; hudScore.textContent='0';
+  S.mistakes=0; if(hudMistakes) hudMistakes.textContent='0';
+  S.binCount={v1:0,v2:0,v3:0}; updateGoals();
+  S.timeLeft=TIME_PER; resetWord(); clearBins();
+  hudName.textContent=S.name; show('game'); nextWord();
+}
+
+// Reward boxes
+const messages=['🧸 เจ๋งสุดๆ เลยเด็กคนนี้!','✨ ยอดนักเวทกริยา! ภารกิจสำเร็จ','🌈 สมองเป็นประกาย วิ้ง วิ้ง','💛 ครูปายปลื้มมาก!','🏆 เก่งแบบมีวินัย น่าชื่นชม','🚀 ความพยายามพาหนูไปไกลแน่นอน'];
+[...document.querySelectorAll('.box')].forEach(box=>{
+  box.addEventListener('click', ()=>{ SND.click();
+    if(box.classList.contains('opened')) return;
+    box.classList.add('opened');
+    const msg=messages[Math.floor(Math.random()*messages.length)];
+    box.querySelector('.emoji').textContent='🎉';
+    box.querySelector('.reveal').textContent=msg;
+  });
+});
+document.getElementById('btnToSummary').addEventListener('click', endGameSummary);
+</script>
+</body>
+</html>
